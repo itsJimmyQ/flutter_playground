@@ -15,8 +15,8 @@ class _OverviewView extends StatefulWidget {
 }
 
 class _OverviewViewState extends State<_OverviewView> {
-  String currToDo = "";
   List<String> listToDos = [];
+  String errorMessage = "";
 
   final TextEditingController _addToDoTextFieldController =
       TextEditingController();
@@ -26,23 +26,37 @@ class _OverviewViewState extends State<_OverviewView> {
       if (listToDos.contains(item)) return;
 
       listToDos.add(item);
-      currToDo = "";
       _addToDoTextFieldController.clear();
+      errorMessage = "";
     });
   }
 
   void _deleteToDo(String item) {
-    if (!listToDos.contains(item)) return;
-
     setState(() {
       listToDos.remove(item);
     });
   }
 
-  void onChangedCurrToDo(String value) {
-    setState(() {
-      currToDo = value;
-    });
+  bool _validate() {
+    String currToDo = _addToDoTextFieldController.text;
+
+    if (currToDo.isEmpty) {
+      setState(() {
+        errorMessage = "Please enter a ToDo";
+      });
+
+      return false;
+    }
+
+    if (listToDos.contains(currToDo)) {
+      setState(() {
+        errorMessage = "This ToDo already exists";
+      });
+
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -59,9 +73,9 @@ class _OverviewViewState extends State<_OverviewView> {
     return Container(
       padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _addTextField(),
+          _addTextField(errorMessage),
           const SizedBox(width: 16),
           _addButton(),
         ],
@@ -69,26 +83,29 @@ class _OverviewViewState extends State<_OverviewView> {
     );
   }
 
-  Widget _addTextField() {
+  Widget _addTextField(String error) {
     return Expanded(
       child: TextField(
         style: const TextStyle(fontSize: 14),
         controller: _addToDoTextFieldController,
-        onChanged: onChangedCurrToDo,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(),
           hintText: "Add a new ToDo",
+          errorText: error.isEmpty ? null : error,
         ),
       ),
     );
   }
 
   Widget _addButton() {
-    return FilledButton(
-      onPressed: () {
-        addToDo(currToDo);
-      },
-      child: const Text("Add"),
+    return SizedBox(
+      height: 48,
+      child: FilledButton(
+        onPressed: () {
+          _validate() ? addToDo(_addToDoTextFieldController.text) : null;
+        },
+        child: const Text("Add"),
+      ),
     );
   }
 
