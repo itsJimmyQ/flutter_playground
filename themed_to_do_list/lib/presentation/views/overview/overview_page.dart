@@ -59,6 +59,12 @@ class _OverviewViewState extends State<_OverviewView> {
     return true;
   }
 
+  void clearError() {
+    setState(() {
+      errorMessage = "";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -93,6 +99,7 @@ class _OverviewViewState extends State<_OverviewView> {
           hintText: "Add a new ToDo",
           errorText: error.isEmpty ? null : error,
         ),
+        onChanged: (_) => clearError(),
       ),
     );
   }
