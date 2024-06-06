@@ -37,6 +37,12 @@ class _OverviewViewState extends State<_OverviewView> {
     });
   }
 
+  void clearError() {
+    setState(() {
+      errorMessage = "";
+    });
+  }
+
   bool _validate() {
     String currToDo = _addToDoTextFieldController.text;
 
@@ -57,12 +63,6 @@ class _OverviewViewState extends State<_OverviewView> {
     }
 
     return true;
-  }
-
-  void clearError() {
-    setState(() {
-      errorMessage = "";
-    });
   }
 
   @override
