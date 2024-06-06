@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:themed_to_do_list/presentation/cubits/app_theme/app_theme_cubit.dart';
+import 'package:themed_to_do_list/presentation/cubits/app_theme_cubit.dart';
 import 'package:themed_to_do_list/presentation/views/overview/overview_page.dart';
 
 void main() {
