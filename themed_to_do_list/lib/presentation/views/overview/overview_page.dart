@@ -17,26 +17,20 @@ class _OverviewView extends StatefulWidget {
 }
 
 class _OverviewViewState extends State<_OverviewView> {
-  List<String> listToDos = [];
   String errorMessage = "";
 
   final TextEditingController _addToDoTextFieldController =
       TextEditingController();
   final DatabaseService _databaseService = DatabaseService();
 
-  void addToDo(String item) {
-    setState(() {
-      if (listToDos.contains(item)) return;
+  void onPressedAdd() {
+    final ToDo newToDo = ToDo(title: _addToDoTextFieldController.text);
 
-      listToDos.add(item);
-      _addToDoTextFieldController.clear();
+    _databaseService.addToDo(newToDo);
+    _addToDoTextFieldController.clear();
+
+    setState(() {
       errorMessage = "";
-    });
-  }
-
-  void _deleteToDo(String item) {
-    setState(() {
-      listToDos.remove(item);
     });
   }
 
@@ -52,14 +46,6 @@ class _OverviewViewState extends State<_OverviewView> {
     if (currToDo.isEmpty) {
       setState(() {
         errorMessage = "Please enter a ToDo";
-      });
-
-      return false;
-    }
-
-    if (listToDos.contains(currToDo)) {
-      setState(() {
-        errorMessage = "This ToDo already exists";
       });
 
       return false;
@@ -112,7 +98,7 @@ class _OverviewViewState extends State<_OverviewView> {
       height: 48,
       child: FilledButton(
         onPressed: () {
-          _validate() ? addToDo(_addToDoTextFieldController.text) : null;
+          _validate() ? onPressedAdd() : null;
         },
         child: const Text("Add"),
       ),
@@ -125,32 +111,32 @@ class _OverviewViewState extends State<_OverviewView> {
       builder: (context, snapshot) {
         List toDos = snapshot.data?.docs ?? [];
         if (toDos.isEmpty) {
-          return const Center(child: Text("No ToDos yet"));
+          return const Center(
+              child: Text("Looks like there's nothing for you to do!"));
         }
 
         return Expanded(
-          child: Expanded(
-            child: ListView.separated(
-              itemCount: toDos.length,
-              itemBuilder: (context, index) {
-                ToDo currToDo = toDos[index].data();
+          child: ListView.separated(
+            itemCount: toDos.length,
+            itemBuilder: (context, index) {
+              ToDo currToDo = toDos[index].data();
+              String currToDoId = toDos[index].id;
 
-                return _listItem(currToDo.title);
-              },
-              separatorBuilder: (_, __) => const Divider(),
-            ),
+              return _listItem(currToDoId, currToDo);
+            },
+            separatorBuilder: (_, __) => const Divider(),
           ),
         );
       },
     );
   }
 
-  Widget _listItem(String item) {
+  Widget _listItem(String toDoId, ToDo toDo) {
     return ListTile(
-      title: Text(item),
+      title: Text(toDo.title),
       trailing: IconButton(
-        icon: const Icon(Icons.delete_outline_rounded),
-        onPressed: () => _deleteToDo(item),
+        icon: const Icon(Icons.check),
+        onPressed: () => _databaseService.deleteToDo(toDoId),
       ),
     );
   }

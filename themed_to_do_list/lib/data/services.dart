@@ -22,4 +22,8 @@ class DatabaseService {
   void addToDo(ToDo toDo) async {
     await _refCollection.add(toDo);
   }
+
+  void deleteToDo(String id) async {
+    await _refCollection.doc(id).delete();
+  }
 }
