@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:themed_to_do_list/data/models.dart';
+import 'package:themed_to_do_list/data/services.dart';
 
 class OverviewPage extends StatelessWidget {
   const OverviewPage({super.key});
@@ -20,6 +22,7 @@ class _OverviewViewState extends State<_OverviewView> {
 
   final TextEditingController _addToDoTextFieldController =
       TextEditingController();
+  final DatabaseService _databaseService = DatabaseService();
 
   void addToDo(String item) {
     setState(() {
@@ -117,14 +120,28 @@ class _OverviewViewState extends State<_OverviewView> {
   }
 
   Widget _list() {
-    return Expanded(
-      child: ListView.separated(
-        itemCount: listToDos.length,
-        itemBuilder: (context, index) {
-          return _listItem(listToDos[index]);
-        },
-        separatorBuilder: (_, __) => const Divider(),
-      ),
+    return StreamBuilder(
+      stream: _databaseService.getToDos(),
+      builder: (context, snapshot) {
+        List toDos = snapshot.data?.docs ?? [];
+        if (toDos.isEmpty) {
+          return const Center(child: Text("No ToDos yet"));
+        }
+
+        return Expanded(
+          child: Expanded(
+            child: ListView.separated(
+              itemCount: toDos.length,
+              itemBuilder: (context, index) {
+                ToDo currToDo = toDos[index].data();
+
+                return _listItem(currToDo.title);
+              },
+              separatorBuilder: (_, __) => const Divider(),
+            ),
+          ),
+        );
+      },
     );
   }
 
